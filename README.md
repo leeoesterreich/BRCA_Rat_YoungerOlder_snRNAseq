@@ -3,28 +3,22 @@ title: "Rat snRNA-seq data analysis"
 format: html
 editor: visual
 R version: 4.4.1 (2024-16-14) -- "Race for Your Life"
-Seurat version 5.1.0 https://satijalab.org/seurat/
 ---
 
 ### Rat snRNA-seq data analysis 
 
 Systemic and breast chronic inflammation and hormone disposition promote a tumor-permissive locale for breast cancer in older women
 
-![image](https://github.com/user-attachments/assets/bfffacc6-337d-4446-a5fe-f7da681311ae)
-
 ### Necessary input data files. (See Step2 below)
 
 -   snRNA-seq processed count data 
 -   Age group annotation data
--   bulk RNA-seq sample annotation data
--   Human gene annotation data
--   Gene list up-regulated by E1 hormone
 
 ## Preparation 1. Install and load the necessary R packages.
 ```{r}
 library(Rcpp)
 library(BiocManager) # CRAN # install.packages("BiocManager")
-library(Seurat, warn.conflicts = FALSE)  # CRAN # install.packages("Seurat")
+library(Seurat, warn.conflicts = FALSE)  # install.packages("Seurat")  Seurat version 5.1.0 https://satijalab.org/seurat/
 library(SeuratObject, warn.conflicts = FALSE) 
 library(stringr) # CRAN
 library(ggplot2) # CRAN
