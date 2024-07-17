@@ -11,12 +11,12 @@ Systemic and breast chronic inflammation and hormone disposition promote a tumor
 
 ![image](https://github.com/user-attachments/assets/a5a4ad70-20e1-4c36-976d-5cfe9c477cc4)
 
-### Necessary input data files. (See Step2 below)
+### Necessary input data files. (See Preparation2 below)
 
 -   snRNA-seq processed count data 
 -   Age group annotation data
 
-## Preparation 1. Install and load the necessary R packages.
+## Preparation1. Install and load the necessary R packages.
 ```{r}
 library(Rcpp)
 library(BiocManager) # CRAN # install.packages("BiocManager")
@@ -35,7 +35,7 @@ library(patchwork)  # CRAN. to use plot_annotation()
 library(harmony)  # CRAN.   install.packages("harmony") to use RunHarmony() https://github.com/immunogenomics/harmony
 ```
 
-## Preparation 2. Set working directory and direct your input data files
+## Preparation2. Set working directory and direct your input data files
 ```{r}
 # Your working directory that this code file
 dir <- dirname(rstudioapi::getSourceEditorContext()$path); 
