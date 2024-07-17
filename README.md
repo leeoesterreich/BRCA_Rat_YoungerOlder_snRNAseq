@@ -183,10 +183,8 @@ SeuratObject_Rat_snRNAseq <- AddMetaData(object=SeuratObject_Rat_snRNAseq, metad
 table(SeuratObject_Rat_snRNAseq$AgeGroup) #  # Aged 50792  Young 43337
 ```
 
-```{r}
-################################################################################
 ## Step4b.	UMAP Reduction and clustering
-################################################################################
+```{r}
 SeuratObject_Rat_snRNAseq <- SeuratObject_Rat_snRNAseq %>% Seurat::RunUMAP(reduction="harmony", dims=1:30, verbose=F) %>% FindNeighbors(reduction="harmony", k.param=15, dim=1:30)  
 SeuratObject_Rat_snRNAseq <- SeuratObject_Rat_snRNAseq %>% Seurat::FindClusters(resolution=1.5) %>% identity()
 table(SeuratObject_Rat_snRNAseq@active.ident) # Res1.0, 31 clusters; Res1.5, 40 clusters
@@ -226,10 +224,8 @@ ggsave(UMAP_ByAgeGroup, height=8,width=11, dpi=300, filename=paste0("UMAPplot_By
 
 ```
 
+## Step4c. Define cell types by marker gene expression   
 ```{r}
-################################################################################
-## Step4c. Define cell types by marker gene expression   ####
-################################################################################
 # MyMainMarker <- c("PECAM1","RAMP2","FLT1","CLDN5",   "EPCAM","KRT19","KRT18","CD24",  "PDGFRB","C1R","DCN","COL1A1",   "ACTA2",  "TPSB2","TPSAB1","CPA3",
 #                   "CD68","LYZ","TYROBP",   "CD83","MS4A1","MZB1","CD79A",   "CD2","CD3E","CD3D","CD3G","IL7R") # I should include "CD79A" B cell marker. 
 ## Check existence of gene in single cell data. 
@@ -364,13 +360,11 @@ fwrite(MyMainMetadata_Proc, file="Metadata_RatsnRNAseq_YoungElderly_94129c.txt",
 ```
 
 
-#### =========== ####  Section 5. Subset Myeloid cells and find macrophage cells by marker genes expression  #### =========== ####
+# Section 5. Subset Myeloid cells and find macrophage cells by marker genes expression  
+
+## Step5a. Subset Myeloid and define cell subtypes
 
 ```{r}
-
-################################################################################
-## Step5a. Subset Myeloid and define cell subtypes
-################################################################################
 SeuratObject_Rat_snRNAseq_Myeloid <- base::subset(x=SeuratObject_Rat_snRNAseq, idents =c("Myeloid")) ##    subset(x=Seurat_object, idents = c("Myeloid")) # Subset by active.ident
 length(SeuratObject_Rat_snRNAseq_Myeloid@active.ident)  # 4822
 
@@ -390,15 +384,10 @@ MyDimplot_ERpos_Myeloid_TSNE <- Seurat::DimPlot(SeuratObject_Rat_snRNAseq_Myeloi
 ggsave(MyDimplot_ERpos_Myeloid_TSNE, height=8,width=9, dpi=300, filename=paste0("OutTSNEplot_RatsnRNAseq_MacrophageDC_Res1.2_21clst_FromWholeRes1.0PC30KP15_ERp.pdf"), useDingbats=FALSE)
 
 saveRDS(SeuratObject_Rat_snRNAseq_Myeloid, file="SeuratObj_Rat_snRNAseq_Myeloid_TSNE.rds")
+```
 
-################################################################################
 ## Step5b. Dotplot by Myeloid markers
-################################################################################
-# MyFeature_Myeloid <- c( "IL1B","CSF1R","S100A9","FCGR3A",   "CD14","SIGLEC1","CXCL10","EGR1","CD68","FCGR1A","FABP5","APOE",   "CD80","CD86","CD163","MRC1","MSR1",
-#                         "CLEC10A","THBD","CD1C","ITGAX","HLA-DRB1","LAMP3","CLEC9A","GZMB","FLT3",     "IL3RA","SELL","IRF7","TYROBP", ### I used these 30 genes for cell type assignment
-#                         "LILRA4","CXCR3","CLEC4C",   "IL10","CD40",   "CCR2","CCL2","CCL18","MMP9","CX3CR1","MT1G","SLC2A1","LYVE1","LYZ",   "ACE", "ADGRE1",  "TEK")
-# # "ADGRE1","TEK", don't have expression.
-# MyFeature_Myeloid_Cheng <- c("LST1","LILRB2","FCN1","CD14", "PTPRC","CD93","S100A8","S100A9","CD86",     "C1QA","C1QC","SEPP1","PLTP","EREG","NLRP3","CCL4","CD68","FCGR3A","MRC1",   "IDO1","CCR7","FSCN1","SELL","IRF7")
+```{r}
 MyFeature_Myeloid <- c("S100a8","Adgre1","Ace","Csf1r",
                         "Il1b","S100a9","Fcgr3a",   "Cd14","Siglec1","Cxcl10","Egr1","Cd68","Fcgr1a","Fabp5","Apoe",   "Cd80","Cd86","Cd163","Mrc1","Msr1","Clec10a",   "Thbd","Itgax","Lamp3","Clec9a","Gzmb","Flt3", 
                         "Il3ra","Sell","Irf7")
@@ -438,12 +427,6 @@ SeuratObject_Rat_snRNAseq_Myeloid <- Seurat::RunTSNE(SeuratObject_Rat_snRNAseq_M
 MyDimplot_ERpos_Myeloid_Rename_TSNE <- Seurat::DimPlot(SeuratObject_Rat_snRNAseq_Myeloid, pt.size=1, label.size=8, reduction="tsne", label=TRUE)
 # ggsave(MyDimplot_ERpos_Myeloid_Rename_TSNE, height=8,width=9, dpi=300, filename=paste0("OutTSNE_ByMyeloidMarker_RatsnRNAseq_Res1.2_21clst_FromWholeRes1.0PC30KP15_ERp.pdf"), useDingbats=FALSE)
 
-# ## Cell type annotation by Wu et al. and Bassez et al.
-# SeuratObject_Rat_snRNAseq_Myeloid$CellType_WuBassez <- ifelse(is.na(SeuratObject_Rat_snRNAseq_Myeloid$cellType),paste0(SeuratObject_Rat_snRNAseq_Myeloid$CellTypeMinor, "_Wu"), paste0(SeuratObject_Rat_snRNAseq_Myeloid$cellType, "_Bassez" ) ) #
-# MyDimplot_ERpos_Myeloid_Rename_TSNE_Wu <- Seurat::DimPlot(SeuratObject_Rat_snRNAseq_Myeloid, pt.size=1, label.size=8, reduction="tsne", label=TRUE, group.by="CellType_WuBassez")
-# #ggsave(MyDimplot_ERpos_Myeloid_Rename_TSNE_Wu, height=8,width=9, dpi=300, filename=paste0("OutTSNE_ByMyeloidMarker_RatsnRNAseq_WuBassezCellType.pdf"), useDingbats=FALSE)
-# table(SeuratObject_Rat_snRNAseq_Myeloid@active.ident, SeuratObject_Rat_snRNAseq_Myeloid$CellType_WuBassez)
-
 MyFeaturePlot_Myeloid <- Seurat::FeaturePlot(SeuratObject_Rat_snRNAseq_Myeloid,raster=FALSE,reduction="tsne", pt.size=0.5,features = c("Cd68","Fcgr3a","Cd14","Cd86","Mrc1","Csf1r","Sell","Irf7"))   #  raster.dpi = c(512, 512)
 # ggsave(MyFeaturePlot_Myeloid, height=10,width=10, dpi=300, filename=paste0("OutFeatureUMAP_Myeloid_Res1.0PC30KP15_Res1.2_ERp.pdf"), useDingbats=FALSE)
 
@@ -453,10 +436,8 @@ ggsave(MyViolinplot, height=5,width=5, dpi=300, filename=paste0("FigS1B_OutVioli
 ##### ----------- ============== $$$$$$$$$$$$$  ##### ----------- ============== $$$$$$$$$$$$$  ##### ----------- ============== $$$$$$$$$$$$$
 ```
 
-```{r}
-################################################################################
 ## Step5c. Store the cell type identity as a data.frame
-################################################################################
+```{r}
 ##### Store the cell type identity as a data.frame
 CellTypeMyeloidDataFrame <- data.frame((SeuratObject_Rat_snRNAseq_Myeloid@active.ident)); dim(CellTypeMyeloidDataFrame) # 4822   1
 colnames(CellTypeMyeloidDataFrame)[1]<-"MyeloidType";
@@ -465,13 +446,10 @@ CellTypeMyeloidDataFrame_Proc <- CellTypeMyeloidDataFrame %>% tibble::rownames_t
 #     3128           705           877            79            33 
 ```
 
-```{r}
-################# ================ ################# ================ ################# ================ ################# ================ ################# ================
-#### =========== ####   Section 6. Subset NKT cells and find cell sub types by marker genes expression #### =========== ####
-################# ================ ################# ================ ################# ================ ################# ================ ################# ================
-################################################################################
+# Section 6. Subset NKT cells and find cell sub types by marker genes expression
+
 ## Step6a. Subset NKT cells
-################################################################################
+```{r}
 SeuratObject_Rat_snRNAseq_NKT <- base::subset(x=SeuratObject_Rat_snRNAseq, idents =c("NKTcell")) # Subset by active.ident
 length(SeuratObject_Rat_snRNAseq_NKT@active.ident)  # 3608
 
@@ -534,10 +512,8 @@ ggsave(MyViolinplot_NKTcell, height=4.5,width=8, dpi=300, filename=paste0("FigS1
 
 ```
 
-```{r}
-#################################################################################
 ## Step6c. Store the cell type identity as a data.frame
-#################################################################################
+```{r}
 CellTypeTcellDataFrame <- data.frame((SeuratObject_Rat_snRNAseq_NKT@active.ident)); dim(CellTypeTcellDataFrame) # 3608   1
 colnames(CellTypeTcellDataFrame)[1]<-"TcellType";
 CellTypeTcellDataFrame_Proc <- CellTypeTcellDataFrame %>% tibble::rownames_to_column("CellID_RatsnRNAseq"); head(CellTypeTcellDataFrame_Proc)
@@ -566,9 +542,10 @@ CellTypeClusterMyeloidTcell$ByMainMarker_MyeloidTcell <- ifelse(CellTypeClusterM
 table(CellTypeClusterMyeloidTcell$ByMainMarker_MyeloidTcell); sum(table(CellTypeClusterMyeloidTcell$ByMainMarker_MyeloidTcell))  # 94129
 # CancerEpithelial         CD4Tcell         CD8Tcell    DendriticCell      Endothelial       Fibroblast    M1_Macrophage    M2_Macrophage       Macrophage         Monocyte    Myoepithelial       NaiveTcell           NKcell             Treg 
 # 77318              827             1183              871              763             1230               79              877              705             3128             5550              306             1126              166 
-################################################################################
-## Step7b. Add new metadata of new cell subtypes to Seurat object
-################################################################################
+```
+
+# Step7b. Add new metadata of new cell subtypes to Seurat object
+```{r}
 SeuratObject_Rat_snRNAseq <- Seurat::AddMetaData(object=SeuratObject_Rat_snRNAseq, metadata=c(CellTypeClusterMyeloidTcell$ByMainMarker_MyeloidTcell), col.name=c("CellTypeMacroTcell_RatsnRNAseq"))
 table(SeuratObject_Rat_snRNAseq$CellTypeMacroTcell_RatsnRNAseq) ## New cell type on 20230612
 # CancerEpithelial         CD4Tcell         CD8Tcell    DendriticCell      Endothelial       Fibroblast    M1_Macrophage    M2_Macrophage       Macrophage         Monocyte    Myoepithelial       NaiveTcell           NKcell             Treg 
@@ -577,10 +554,11 @@ SeuratObject_Rat_snRNAseq <- Seurat::SetIdent(SeuratObject_Rat_snRNAseq, value=S
 table(SeuratObject_Rat_snRNAseq@active.ident)
 
 saveRDS(SeuratObject_Rat_snRNAseq, file="SeuratObj_Harmony_Rat_snRNAseq_CelltypeDefined.rds")
+```
 
-################################################################################
-## Step7c. Remove "NotAvail" cells
-################################################################################
+Step7c. Remove "NotAvail" cells
+
+```{r}
 # SeuratObject_Rat_snRNAseq <- base::subset(x=SeuratObject_Rat_snRNAseq, idents = c("NotAvail"), invert=TRUE)  # invert=TRUE willl exclude the ident cells.
 # table(SeuratObject_Rat_snRNAseq@active.ident)
 table(SeuratObject_Rat_snRNAseq$CellTypeMacroTcell_RatsnRNAseq); sum(table(SeuratObject_Rat_snRNAseq$CellTypeMacroTcell_RatsnRNAseq)) # 94129
@@ -619,7 +597,9 @@ ggsave(MyViolinplot_MainSub, height=6.5,width=6.5, dpi=300, filename=paste0("Out
 # MyDotPlot_MainType <- Seurat::DotPlot(SeuratObject_Rat_snRNAseq, features=MyMainMarker, group.by="CellTypeMacroTcell_RatsnRNAseq")+ theme(axis.text.x=element_text(vjust=0.6, size=15,angle=0), axis.text.y=element_text(vjust=0.6, size=15,angle=0)) +
 #   scale_colour_gradient2(low = "#1515FA", mid = "#FFFAE2", high = "#ff0000") + coord_flip()    # scale_color_viridis_c()    #ffe272
 # # ggsave(MyDotPlot_MainType, height=10,width=15, dpi=300, filename=paste0("OutDotplot_ByMainMarker_HarmoneyRatsnRNAseq_Res1.0_40Cluster_MoreMarker_20240222.pdf"), useDingbats=FALSE)
+```
 
+```{r}
 ################ ================ ################# ================ ################# ================ ################# ================ ################# ================
 #### =========== ####   Section 8.  Calculate cell type fraction per samples. #### =========== ####
 ###               Make dotplot of Macrophage fraction per sample. Make fraction barplot for all samples 
@@ -663,9 +643,11 @@ pdf(file="FigS1D_OutDotplot_MacrophageInfiltration_IndividualSample.pdf", width=
 dev.off()
 ##### ----------- ============== $$$$$$$$$$$$$  ##### ----------- ============== $$$$$$$$$$$$$  ##### ----------- ============== $$$$$$$$$$$$$  
 
-#################################################################################################
-### Step8b. Make fraction barplot that represent each cell type fraction in different samples
-#################################################################################################
+```
+
+## Step8b. Make fraction barplot that represent each cell type fraction in different samples
+```{r}
+
 NewIndex<-c()
 #for (EachCase in names(sort(ProportionCalculation[,cell_type]))) { 
 for (EachCase in rownames(ProportionCalculation)[order(ProportionCalculation[,cell_type])] ) { 
@@ -733,11 +715,11 @@ ggsave(FractionBarplot, height=5,width=8, dpi=300, filename=paste0("Fig2D_OutFra
 
 
 
-#  Section 9.  Scaled by DefaultAssay RNA - this is used to calculate correlation between gene expression and Macrophage fraction, or gene exp violin plot #### =========== ####
-```{r}
-#################################################################################################
+#  Section 9.  Scaled by DefaultAssay RNA - this is used to calculate correlation between gene expression and Macrophage fraction, or gene exp violin plot 
+
 ## Step 9a. Scaled by DefaultAssay RNA 
-#################################################################################################
+
+```{r}
 library(patchwork) # plot_annotation function
 library(gridExtra)  # for 'grid.arrange' function
 library(ggrepel) # for geom_text_repel function. 
@@ -752,9 +734,11 @@ SeuratObject_Rat_snRNAseq_Scaled <- ScaleData(SeuratObject_Rat_snRNAseq_Normal, 
 saveRDS(SeuratObject_Rat_snRNAseq_Scaled, file="SeuratObject_Rat_snRNAseq_RNAScaled_Subset.rds")    
 ## SeuratObject_Rat_snRNAseq_Scaled <- readRDS("SeuratObject_Rat_snRNAseq_RNAScaled.rds")
 
-#################################################################################################
+```
+
 ## Step 9b. Gene expression violin plot. 
-#################################################################################################
+
+```{r}
 ## subset by cell type
 MyCellType <- names(table(SeuratObject_Rat_snRNAseq_Scaled$CellTypeByMarker_RatsnRNAseq)); print(MyCellType)
 # [1] "CancerEpithelial" "Myoepithelial"    "ImmuneCell"       "StromalCell"    
@@ -795,12 +779,9 @@ for(EachCellType in MyCellType) { # MyCellType_NoNASelc
 
 ```
 
-This is to make CellPhoneDB or GSVA input files. 
+## Step6. Make CellPhoneDB or GSVA input files.   This is to make CellPhoneDB or GSVA input files. 
 
 ```{r}
-#################################################################################################
-### =========== Step6. Make CellPhoneDB or GSVA input files   -  Baseline count data and cell metadata for YoungElderly  Rich vs Poor
-#################################################################################################
 ## 3) Whole subjects   -- Can be used for GSVA and SCENIC too. 
 # Remove zero count genes and save the count data for CellPhoneDB input
 CountData_YoungElderlyWhole_CellType <- as.data.frame(SeuratObject_Rat_snRNAseq[["SCT"]]@counts); dim(CountData_YoungElderlyWhole_CellType)  # 18111 94129 cells
@@ -814,10 +795,5 @@ colnames(CountData_YoungElderlyWhole_CellType_NoLowCountGene) <- gsub("-","_",co
 fwrite(data.frame(CountData_YoungElderlyWhole_CellType_NoLowCountGene), "CountDataForGSVA_RatsnRNAseq_YoungElderlyWhole_MainCellType_17096g94122c.txt", col.names=TRUE, row.names=TRUE, sep="\t", quote=FALSE)  # 200/2000 19221g86138c
 saveRDS(data.frame(CountData_YoungElderlyWhole_CellType_NoLowCountGene), file="CountDataForGSVA_RatsnRNAseq_YoungElderlyWhole_MainCellType_17096g94122c.rds")
 ```
-
-
-
-
-
 
 
